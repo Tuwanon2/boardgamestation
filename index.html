@@ -6,6 +6,11 @@
     <title>สถานะบอร์ดเกมของเรา</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* รีเซ็ตค่าเริ่มต้นให้คุมขนาดกล่องได้ง่ายขึ้น */
+        * {
+            box-sizing: border-box;
+        }
+
         /* CSS ปรับโฉมใหม่ให้สวยงาม โมเดิร์น */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -37,6 +42,12 @@
             margin-top: 0;
         }
         
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         /* 🌟 สไตล์โลโก้เว็บ */
         .web-logo {
             height: 60px; /* ขนาดความสูงโลโก้ */
@@ -96,7 +107,7 @@
         }
         #saveBtn:hover { background-color: #721bbd; transform: translateY(-2px); }
         
-        /* สไตล์ตาราง */
+        /* สไตล์ตารางเริ่มต้น (สำหรับจอคอม) */
         table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; border-radius: 10px; overflow: hidden; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
         th { background-color: #f8f9fa; color: #555; text-transform: uppercase; font-size: 0.9em; }
@@ -139,6 +150,79 @@
             color: #006064;
             display: inline-block;
             font-size: 0.9em;
+        }
+
+        /* 📱 ================================================= */
+        /* 🌟 RESPONSIVE DESIGN: สำหรับหน้าจอมือถือ (กว้างไม่เกิน 768px) */
+        /* ==================================================== */
+        @media (max-width: 768px) {
+            body { 
+                padding: 20px 10px; /* ลดขอบซ้ายขวาลงให้มีพื้นที่แสดงผลมากขึ้น */
+            }
+            .container { 
+                padding: 20px; 
+            }
+            
+            /* ปรับส่วนหัว (Header) ให้อยู่ตรงกลางและเรียงลงมา */
+            h2 { 
+                flex-direction: column; 
+                gap: 15px; 
+                text-align: center; 
+            }
+            .header-left { 
+                flex-direction: column; 
+                justify-content: center; 
+            }
+            
+            /* ปรับกล่องกรอกข้อมูล Admin ให้เรียงแถวลงมา (แนวตั้ง) */
+            .admin-inputs { 
+                flex-direction: column; 
+                align-items: stretch;
+            }
+            input[type="text"], input[type="file"], #saveBtn { 
+                width: 100%; 
+            }
+
+            /* 🌟 แปลงตารางเป็น "รูปแบบการ์ด (Card Layout)" */
+            table, thead, tbody, th, td, tr { 
+                display: block; 
+            }
+            thead tr { 
+                display: none; /* ซ่อนหัวตาราง (รูปภาพ, ชื่อเกม, อยู่ที่ใคร) ออกไป */
+            }
+            tr { 
+                margin-bottom: 20px; 
+                border: 1px solid #eaeaea; 
+                border-radius: 15px; 
+                padding: 20px 15px; 
+                box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+                background: white;
+            }
+            td { 
+                padding: 10px 0; 
+                text-align: center; /* จัดตัวหนังสือให้อยู่ตรงกลาง */
+                border: none; 
+            }
+            /* จัดการรูปภาพในมือถือให้ใหญ่ขึ้นนิดนึงและอยู่ตรงกลาง */
+            img.game-pic { 
+                width: 120px; 
+                height: 120px; 
+                margin: 0 auto; 
+                display: block; 
+            }
+            /* บังคับให้ปุ่มเมนู Admin แสดงผลเป็นบล็อก (แก้ไขปัญหาที่ JS สั่งให้เป็น table-cell) */
+            .admin-controls[style*="display: table-cell"] {
+                display: block !important; 
+            }
+            /* ปรับปุ่มลบ/แก้ไขให้กว้างเต็มจอเพื่อให้กดง่ายบนมือถือ */
+            .admin-controls button {
+                width: 100%;
+                margin-bottom: 10px;
+                padding: 12px;
+            }
+            .admin-controls button:last-child {
+                margin-bottom: 0;
+            }
         }
     </style>
 </head>
@@ -254,8 +338,8 @@
                 <td><span class="status-badge">${game.holder}</span></td>`;
             
             if (isAdmin) {
-                row += `<td>
-                    <button class="btn-warning" style="margin-bottom: 5px;" onclick="changeStatus(${game.id}, '${game.holder}')">✏️ เปลี่ยนสถานะ</button>
+                row += `<td class="admin-controls">
+                    <button class="btn-warning" onclick="changeStatus(${game.id}, '${game.holder}')">✏️ เปลี่ยนสถานะ</button>
                     <button class="btn-danger" onclick="deleteGame(${game.id})">🗑️ ลบ</button>
                 </td>`;
             }
@@ -263,6 +347,7 @@
             tbody.innerHTML += row;
         });
 
+        // คืนค่า display หลังจากวาด Table ใหม่
         const adminHeaders = document.querySelectorAll('.admin-controls');
         adminHeaders.forEach(el => el.style.display = isAdmin ? 'table-cell' : 'none');
     }
