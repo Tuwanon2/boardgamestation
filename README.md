@@ -1,1 +1,3 @@
 # boardgamestation
+supabase ชมรม
+boardgamestation123

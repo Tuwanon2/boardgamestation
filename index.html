@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สถานะบอร์ดเกมของเรา</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f4f7f6; 
+            padding: 20px; 
+            color: #333; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+        }
+        h2 { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        button { 
+            cursor: pointer; 
+            padding: 8px 12px; 
+            border: none; 
+            border-radius: 5px; 
+            background-color: #007bff; 
+            color: white; 
+            font-weight: bold;
+        }
+        button:hover { background-color: #0056b3; }
+        .btn-danger { background-color: #dc3545; }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-warning { background-color: #ffc107; color: black; }
+        .btn-warning:hover { background-color: #e0a800; }
+        
+        /* สไตล์ตาราง */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; vertical-align: middle; }
+        th { background-color: #f8f9fa; }
+        img.game-pic { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; }
+        
+        /* สไตล์ส่วนของ Admin */
+        #adminPanel { 
+            display: none; 
+            background: #e9ecef; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            margin-top: 20px;
+        }
+        .admin-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        input { 
+            flex: 1;
+            padding: 8px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+        }
+        .admin-controls { display: none; } /* ซ่อนหัวข้อคอลัมน์จัดการ ถ้าไม่ใช่แอดมิน */
+        .status-badge {
+            background:#e0f7fa; 
+            padding:6px 10px; 
+            border-radius:12px; 
+            font-weight:bold; 
+            color:#006064;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>
+        🎲 สถานะบอร์ดเกม
+        <button id="loginBtn" onclick="toggleAdmin()">⚙️ สำหรับ Admin</button>
+    </h2>
+
+    <div id="adminPanel">
+        <h3 style="margin-top: 0;">➕ เพิ่มบอร์ดเกมใหม่</h3>
+        <div class="admin-inputs">
+            <input type="text" id="gameName" placeholder="ชื่อบอร์ดเกม (เช่น Catan)">
+            <input type="text" id="gameImg" placeholder="URL รูปภาพ (ปล่อยว่างได้)">
+            <input type="text" id="gameHolder" placeholder="สถานะ (เช่น อยู่ที่ตู้, พี่ A ยืม)">
+        </div>
+        <button onclick="addGame()">บันทึกเกมใหม่</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th width="100">รูปภาพ</th>
+                <th>ชื่อเกม</th>
+                <th>สถานะ / อยู่ที่ใคร</th>
+                <th class="admin-controls" width="180">จัดการ (Admin)</th>
+            </tr>
+        </thead>
+        <tbody id="gameTableBody">
+            <tr><td colspan="4" style="text-align: center;">กำลังโหลดข้อมูล...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // 1. เชื่อมต่อ Supabase ด้วย URL และ Key ของคุณ
+    const supabaseUrl = 'https://sntbvvyafvcieopsdklc.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNudGJ2dnlhZnZjaWVvcHNka2xjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MzY3NDgsImV4cCI6MjA4OTMxMjc0OH0.leGtwyXdGHY_3rGBTTNdNaDhFcq2Ic-buKoVOe-EFyM';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // ตัวแปรเก็บสถานะแอดมิน
+    let isAdmin = false;
+
+    // 2. ฟังก์ชันตรวจสอบรหัสผ่านแอดมิน (รหัสคือ 1234)
+    function toggleAdmin() {
+        if (isAdmin) {
+            // ออกจากระบบ
+            isAdmin = false;
+            document.getElementById('loginBtn').innerText = "⚙️ สำหรับ Admin";
+            document.getElementById('adminPanel').style.display = "none";
+            renderTable(); // วาดตารางใหม่เพื่อซ่อนปุ่ม
+            return;
+        }
+
+        const password = prompt("กรุณาใส่รหัสผ่าน Admin:");
+        if (password === "1234") {
+            isAdmin = true;
+            document.getElementById('loginBtn').innerText = "🔴 ออกจากระบบ Admin";
+            document.getElementById('adminPanel').style.display = "block";
+            renderTable(); // วาดตารางใหม่เพื่อโชว์ปุ่มจัดการ
+        } else if (password !== null) {
+            alert("รหัสผ่านไม่ถูกต้อง!");
+        }
+    }
+
+    // ตัวแปรเก็บข้อมูลเกมทั้งหมด เพื่อจะได้ไม่ต้องโหลดจากฐานข้อมูลใหม่ทุกครั้งที่กดปุ่มแอดมิน
+    let gamesData = [];
+
+    // 3. ฟังก์ชันดึงข้อมูลจาก Supabase
+    async function fetchGames() {
+        const { data, error } = await supabase
+            .from('boardgames')
+            .select('*')
+            .order('id', { ascending: false }); // เรียงจากเกมที่เพิ่มล่าสุด
+        
+        if (error) {
+            console.error("Error fetching data:", error);
+            document.getElementById('gameTableBody').innerHTML = '<tr><td colspan="4">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+            return;
+        }
+
+        gamesData = data;
+        renderTable();
+    }
+
+    // ฟังก์ชันวาดตาราง (แยกออกมาเพื่อให้ทำงานเร็วขึ้นตอนสลับโหมด Admin)
+    function renderTable() {
+        const tbody = document.getElementById('gameTableBody');
+        tbody.innerHTML = ''; // ล้างตาราง
+
+        if (gamesData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">ยังไม่มีบอร์ดเกมในระบบ</td></tr>';
+            return;
+        }
+
+        gamesData.forEach(game => {
+            // ถ้าไม่มีรูป ให้ใช้รูป Placeholder
+            const defaultImg = 'https://placehold.co/70x70?text=No+Img';
+            const imgUrl = game.image_url ? game.image_url : defaultImg;
+
+            let row = `<tr>
+                <td><img src="${imgUrl}" class="game-pic" alt="game image"></td>
+                <td><strong>${game.name}</strong></td>
+                <td><span class="status-badge">${game.holder}</span></td>`;
+            
+            // ถ้าเป็นแอดมิน ให้เติมปุ่มจัดการต่อท้าย
+            if (isAdmin) {
+                row += `<td>
+                    <button class="btn-warning" onclick="changeStatus(${game.id}, '${game.holder}')">เปลี่ยนสถานะ</button>
+                    <button class="btn-danger" onclick="deleteGame(${game.id})">ลบ</button>
+                </td>`;
+            }
+            row += `</tr>`;
+            tbody.innerHTML += row;
+        });
+
+        // ซ่อน/แสดง หัวข้อคอลัมน์ "จัดการ (Admin)"
+        const adminHeaders = document.querySelectorAll('.admin-controls');
+        adminHeaders.forEach(el => el.style.display = isAdmin ? 'table-cell' : 'none');
+    }
+
+    // 4. ฟังก์ชันเพิ่มบอร์ดเกม (Supabase Insert)
+    async function addGame() {
+        const name = document.getElementById('gameName').value.trim();
+        const img = document.getElementById('gameImg').value.trim();
+        const holder = document.getElementById('gameHolder').value.trim();
+
+        if (!name || !holder) {
+            alert('กรุณาใส่ "ชื่อเกม" และ "สถานะ" ให้ครบถ้วนครับ');
+            return;
+        }
+
+        // กำลังโหลด...
+        const btn = document.querySelector('#adminPanel button');
+        btn.innerText = "กำลังบันทึก...";
+        btn.disabled = true;
+
+        const { error } = await supabase
+            .from('boardgames')
+            .insert([{ name: name, image_url: img, holder: holder }]);
+        
+        btn.innerText = "บันทึกเกมใหม่";
+        btn.disabled = false;
+
+        if (error) {
+            console.error(error);
+            alert('เกิดข้อผิดพลาดในการเพิ่มข้อมูล!');
+        } else {
+            // ล้างช่องกรอกข้อมูล
+            document.getElementById('gameName').value = '';
+            document.getElementById('gameImg').value = '';
+            document.getElementById('gameHolder').value = '';
+            fetchGames(); // โหลดข้อมูลมาใหม่
+        }
+    }
+
+    // 5. ฟังก์ชันเปลี่ยนสถานะ (Supabase Update)
+    async function changeStatus(id, currentHolder) {
+        const newHolder = prompt("อัปเดตสถานะ/คนที่เก็บกล่อง:", currentHolder);
+        
+        // ถ้ากดยกเลิก หรือปล่อยว่าง หรือค่าเหมือนเดิม ไม่ต้องทำอะไร
+        if (newHolder === null || newHolder.trim() === "" || newHolder === currentHolder) return;
+
+        const { error } = await supabase
+            .from('boardgames')
+            .update({ holder: newHolder.trim() })
+            .eq('id', id);
+
+        if (error) {
+            console.error(error);
+            alert('อัปเดตสถานะไม่สำเร็จ!');
+        } else {
+            fetchGames(); // โหลดข้อมูลมาใหม่
+        }
+    }
+
+    // 6. ฟังก์ชันลบเกม (Supabase Delete)
+    async function deleteGame(id) {
+        if (confirm("แน่ใจหรือไม่ว่าต้องการลบเกมนี้ออกจากระบบ?")) {
+            const { error } = await supabase
+                .from('boardgames')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                console.error(error);
+                alert('ลบข้อมูลไม่สำเร็จ!');
+            } else {
+                fetchGames(); // โหลดข้อมูลมาใหม่
+            }
+        }
+    }
+
+    // สั่งให้โหลดข้อมูลทันทีเมื่อเปิดหน้าเว็บ
+    fetchGames();
+</script>
+
+</body>
+</html>
