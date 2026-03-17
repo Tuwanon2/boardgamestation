@@ -131,7 +131,7 @@
 </div>
 
 <script>
-    // เชื่อมต่อ Supabase
+    // เชื่อมต่อ Supabase (ใช้ชื่อ mySupabase เพื่อไม่ให้ซ้ำกับระบบ)
     const mySupabaseUrl = 'https://sntbvvyafvcieopsdklc.supabase.co';
     const mySupabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNudGJ2dnlhZnZjaWVvcHNka2xjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MzY3NDgsImV4cCI6MjA4OTMxMjc0OH0.leGtwyXdGHY_3rGBTTNdNaDhFcq2Ic-buKoVOe-EFyM';
     const mySupabase = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
@@ -188,10 +188,11 @@
 
         gamesData.forEach(game => {
             const defaultImg = 'https://placehold.co/80x80?text=No+Img';
+            // ถ้ารูปพังหรือไม่มี ให้ใช้รูป default
             const imgUrl = game.image_url ? game.image_url : defaultImg;
 
             let row = `<tr>
-                <td><img src="${imgUrl}" class="game-pic" alt="${game.name}"></td>
+                <td><img src="${imgUrl}" class="game-pic" alt="${game.name}" onerror="this.src='${defaultImg}'"></td>
                 <td><strong style="font-size: 1.1em; color: #222;">${game.name}</strong></td>
                 <td><span class="status-badge">${game.holder}</span></td>`;
             
@@ -228,26 +229,25 @@
 
         let finalImageUrl = "";
 
-        // ถ้ามีการเลือกไฟล์รูปภาพ ให้ทำการอัปโหลดก่อน
+        // ถ้ามีการเลือกไฟล์รูปภาพ
         if (file) {
-            // ตั้งชื่อไฟล์ใหม่ให้ไม่ซ้ำกัน (ใช้เวลาปัจจุบัน)
             const fileExt = file.name.split('.').pop();
             const fileName = `${Date.now()}.${fileExt}`;
-            const filePath = `${fileName}`; // เก็บในโฟลเดอร์หลักของ Bucket
+            const filePath = `${fileName}`; 
 
             // 1. อัปโหลดรูปเข้า Storage ที่ชื่อ 'images'
             const { data: uploadData, error: uploadError } = await mySupabase.storage
-                .from('images') // ชื่อ Bucket ต้องตรงกับที่สร้างใน Supabase
+                .from('images') 
                 .upload(filePath, file);
 
             if (uploadError) {
                 console.error("Upload Error:", uploadError);
-                alert('อัปโหลดรูปล้มเหลว! ตรวจสอบว่าสร้าง Bucket ชื่อ "images" และตั้งเป็น Public หรือยังครับ');
+                alert('อัปโหลดรูปล้มเหลว! ตรวจสอบว่าเปิด Policy ให้ Insert/Update ในกล่องภาพหรือยังครับ');
                 resetButton(btn);
                 return;
             }
 
-            // 2. ดึง URL ของรูปที่อัปโหลดเสร็จมาใช้งาน
+            // 2. ดึง URL ของรูป
             const { data: publicUrlData } = mySupabase.storage
                 .from('images')
                 .getPublicUrl(filePath);
@@ -255,7 +255,7 @@
             finalImageUrl = publicUrlData.publicUrl;
         }
 
-        // 3. บันทึกข้อมูล (ชื่อเกม, URLรูป, สถานะ) ลงฐานข้อมูล
+        // 3. บันทึกข้อมูล
         const { error } = await mySupabase
             .from('boardgames')
             .insert([{ name: name, image_url: finalImageUrl, holder: holder }]);
@@ -266,7 +266,6 @@
             console.error(error);
             alert('เกิดข้อผิดพลาดในการเพิ่มข้อมูลลงฐานข้อมูล!');
         } else {
-            // ล้างข้อมูลในช่องกรอก และโหลดตารางใหม่
             document.getElementById('gameName').value = '';
             fileInput.value = '';
             document.getElementById('gameHolder').value = '';
@@ -301,6 +300,7 @@
         }
     }
 
+    // โหลดข้อมูลตอนเปิดหน้าเว็บ
     fetchGames();
 </script>
 
