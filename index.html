@@ -6,7 +6,6 @@
     <title>สถานะบอร์ดเกมของเรา</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* รีเซ็ตค่าเริ่มต้น */
         * { box-sizing: border-box; }
 
         body { 
@@ -27,155 +26,69 @@
             backdrop-filter: blur(10px);
         }
         
-        /* สไตล์ส่วนหัว (Header) */
         h2 { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 3px solid #f0f0f0;
-            padding-bottom: 15px;
-            margin-top: 0;
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 3px solid #f0f0f0; padding-bottom: 15px; margin-top: 0;
         }
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .web-logo {
-            height: 60px;
-            width: auto;
-            border-radius: 12px;
-            object-fit: cover;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .web-logo { height: 60px; width: auto; border-radius: 12px; object-fit: cover; }
         
-        #loginBtn {
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            padding: 0;
-            transition: transform 0.2s ease;
-        }
+        #loginBtn { cursor: pointer; border: none; background: transparent; padding: 0; transition: transform 0.2s; }
         #loginBtn:hover { transform: scale(1.05) translateY(-2px); }
-        #loginBtn img {
-            height: 50px;
-            width: auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-        
-        #loginBtn.btn-danger-mode {
-            background-color: #ff4757;
-            color: white;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
-        }
-        #loginBtn.btn-danger-mode:hover { background-color: #ff6b81; }
+        #loginBtn img { height: 50px; border-radius: 10px; }
+        #loginBtn.btn-danger-mode { background-color: #ff4757; color: white; padding: 10px 16px; border-radius: 8px; font-weight: bold; }
 
-        /* ปุ่มต่างๆ */
-        .btn-warning { background-color: #ffa502; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s ease;}
-        .btn-warning:hover { background-color: #ff7f50; transform: translateY(-2px);}
-        .btn-danger { background-color: #ff4757; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s ease;}
-        .btn-danger:hover { background-color: #ff6b81; transform: translateY(-2px);}
+        .btn-warning { background-color: #ffa502; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-danger { background-color: #ff4757; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        #saveBtn { cursor: pointer; padding: 12px 20px; border: none; border-radius: 8px; background-color: #8a2be2; color: white; font-weight: bold; width: 100%; }
         
-        #saveBtn {
-            cursor: pointer; 
-            padding: 12px 20px; 
-            border: none; 
-            border-radius: 8px; 
-            background-color: #8a2be2; 
-            color: white; 
-            font-weight: bold;
-            transition: all 0.2s ease;
-            font-size: 16px;
-        }
-        #saveBtn:hover { background-color: #721bbd; transform: translateY(-2px); }
-        
-        /* 🌟 คลุมตารางเพื่อให้เลื่อนซ้ายขวาได้บนมือถือ */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto; /* อนุญาตให้เลื่อนซ้ายขวา */
-            -webkit-overflow-scrolling: touch; /* เลื่อนลื่นๆ บน iOS */
-            margin-top: 25px;
-            border-radius: 10px;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        /* สไตล์ตาราง */
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            min-width: 550px; /* บังคับความกว้างขั้นต่ำ ไม่ให้ตารางบีบจนข้อความเละ */
-        }
+        /* สไตล์ตารางสำหรับจอคอม (จอใหญ่) */
+        .table-responsive { width: 100%; overflow-x: hidden; margin-top: 25px; background: white; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
-        th { background-color: #f8f9fa; color: #555; text-transform: uppercase; font-size: 0.9em; white-space: nowrap; }
-        tr:hover { background-color: #fcfcfc; }
-        img.game-pic { width: 80px; height: 80px; object-fit: cover; border-radius: 12px; border: 2px solid #f0f0f0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        th { background-color: #f8f9fa; color: #555; text-transform: uppercase; font-size: 0.9em; }
+        img.game-pic { width: 70px; height: 70px; object-fit: cover; border-radius: 10px; }
         
-        /* สไตล์ส่วนของ Admin */
-        #adminPanel { 
-            display: none; 
-            background: linear-gradient(to right, #f8f9fa, #ffffff); 
-            padding: 20px; 
-            border-radius: 12px; 
-            margin-bottom: 25px; 
-            margin-top: 25px;
-            border: 1px solid #eaeaea;
-        }
-        .admin-inputs {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            align-items: center;
-        }
-        input[type="text"] { 
-            flex: 1;
-            padding: 12px; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            font-size: 14px;
-            transition: border-color 0.2s;
-        }
-        input[type="text"]:focus { border-color: #8a2be2; outline: none; }
-        input[type="file"] { flex: 1; font-size: 14px; }
-        
+        #adminPanel { display: none; background: #f8f9fa; padding: 20px; border-radius: 12px; margin: 25px 0; border: 1px solid #eaeaea; }
+        .admin-inputs { display: flex; gap: 10px; margin-bottom: 15px; }
+        input[type="text"], input[type="file"] { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
         .admin-controls { display: none; }
-        .status-badge {
-            background: #e0f7fa; 
-            padding: 8px 12px; 
-            border-radius: 20px; 
-            font-weight: bold; 
-            color: #006064;
-            display: inline-block;
-            font-size: 0.9em;
-            white-space: nowrap;
-        }
+        .status-badge { background: #e0f7fa; padding: 8px 12px; border-radius: 20px; font-weight: bold; color: #006064; display: inline-block; font-size: 0.9em; }
 
-        /* 📱 RESPONSIVE DESIGN สำหรับมือถือ (กว้างไม่เกิน 768px) */
+        /* 📱 RESPONSIVE DESIGN: สำหรับมือถือ (บีบทุกอย่างให้อยู่ในจอเดียว) */
         @media (max-width: 768px) {
-            body { padding: 15px 10px; }
-            .container { padding: 20px 15px; }
+            body { padding: 10px 5px; }
+            .container { padding: 15px 10px; }
+            h2 { flex-direction: column; gap: 10px; text-align: center; }
+            .header-left { flex-direction: column; }
+            .admin-inputs { flex-direction: column; }
             
-            /* จัด Header ให้อยู่ตรงกลาง */
-            h2 { flex-direction: column; gap: 15px; text-align: center; }
-            .header-left { flex-direction: column; justify-content: center; }
+            /* ลดขนาดช่องว่างและตัวหนังสือในตาราง */
+            th, td { 
+                padding: 8px 4px; /* บีบช่องว่างให้แคบลง */
+                font-size: 12px;  /* ลดขนาดตัวอักษร */
+                word-break: break-word; /* ให้ตัดคำขึ้นบรรทัดใหม่ได้ถ้าที่จอดไม่พอ */
+            }
+            th { font-size: 11px; } /* หัวตารางตัวเล็กสุด */
             
-            /* กล่องกรอกข้อมูล Admin ให้เรียงแนวตั้ง */
-            .admin-inputs { flex-direction: column; align-items: stretch; }
-            input[type="text"], input[type="file"], #saveBtn { width: 100%; }
-
-            /* ปรับขนาดในตารางให้เล็กลงนิดหน่อยเพื่อประหยัดพื้นที่ */
-            th, td { padding: 10px; font-size: 14px; }
-            img.game-pic { width: 60px; height: 60px; }
-            .btn-warning, .btn-danger { padding: 6px 10px; font-size: 12px; margin-bottom: 4px; display: block; width: 100%; text-align: center;}
+            /* ย่อรูปภาพให้เล็กพอดีจอ */
+            img.game-pic { width: 45px; height: 45px; border-radius: 6px; }
             
-            /* กำหนดความกว้างขั้นต่ำของตารางเมื่ออยู่ในโหมดแอดมิน (เพราะมีปุ่มเพิ่มมา) */
-            table { min-width: 600px; } 
+            /* ย่อป้ายชื่อคนถือและอนุญาตให้ตัดคำได้ */
+            .status-badge { 
+                padding: 4px 6px; 
+                font-size: 11px; 
+                white-space: normal; 
+            }
+            
+            /* ย่อปุ่มและเรียงบนล่าง */
+            .btn-warning, .btn-danger { 
+                padding: 4px; 
+                font-size: 11px; 
+                display: block; 
+                width: 100%; 
+                margin-bottom: 4px; 
+            }
         }
     </style>
 </head>
@@ -187,7 +100,6 @@
             <img src="https://sntbvvyafvcieopsdklc.supabase.co/storage/v1/object/public/images/f4ebcd81-7ef8-4cb3-80b2-1213ae26b578.jpg" class="web-logo" alt="Logo">
             <span class="web-title">Boardgame Station</span>
         </div>
-        
         <button id="loginBtn" onclick="toggleAdmin()">
             <img src="https://t3.ftcdn.net/jpg/09/86/19/94/360_F_986199439_HWPZ4YtWmnR9h1FXSJXuqhXpLy7Kh0rb.jpg" alt="Admin Login">
         </button>
@@ -207,14 +119,14 @@
         <table>
             <thead>
                 <tr>
-                    <th width="90">รูปภาพ</th>
-                    <th>ชื่อเกม</th>
-                    <th>อยู่ที่ใคร</th>
-                    <th class="admin-controls" width="140">จัดการ</th>
+                    <th style="width: 15%;">รูป</th>
+                    <th style="width: 35%;">ชื่อเกม</th>
+                    <th style="width: 25%;">อยู่ที่ใคร</th>
+                    <th class="admin-controls" style="width: 25%;">จัดการ</th>
                 </tr>
             </thead>
             <tbody id="gameTableBody">
-                <tr><td colspan="4" style="text-align: center; padding: 30px; color: #888;">กำลังโหลดข้อมูล... ⏳</td></tr>
+                <tr><td colspan="4" style="text-align: center; padding: 30px;">กำลังโหลด... ⏳</td></tr>
             </tbody>
         </table>
     </div>
@@ -236,126 +148,72 @@
             btn.innerHTML = adminImageBtnHtml;
             btn.classList.remove('btn-danger-mode');
             document.getElementById('adminPanel').style.display = "none";
-            renderTable(); 
-            return;
+            renderTable(); return;
         }
-
-        const password = prompt("กรุณาใส่รหัสผ่าน Admin:");
+        const password = prompt("รหัสผ่าน Admin:");
         if (password === "113333555555") {
             isAdmin = true;
-            btn.innerHTML = "🔴 เสร็จสิ้น";
+            btn.innerHTML = "🔴 ออกจากระบบ";
             btn.classList.add('btn-danger-mode');
             document.getElementById('adminPanel').style.display = "block";
             renderTable(); 
-        } else if (password !== null) {
-            alert("รหัสผ่านไม่ถูกต้อง!");
-        }
+        } else if (password !== null) { alert("รหัสผิด!"); }
     }
 
     async function fetchGames() {
         const { data, error } = await mySupabase.from('boardgames').select('*').order('id', { ascending: false });
-        if (error) {
-            console.error("Error fetching data:", error);
-            document.getElementById('gameTableBody').innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
-            return;
-        }
-        gamesData = data;
-        renderTable();
+        if (!error) { gamesData = data; renderTable(); }
     }
 
     function renderTable() {
         const tbody = document.getElementById('gameTableBody');
         tbody.innerHTML = ''; 
-
-        if (gamesData.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #888;">ยังไม่มีบอร์ดเกมในระบบ ลองเพิ่มดูสิ! 🎲</td></tr>';
-            return;
-        }
+        if (gamesData.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">ไม่มีข้อมูล</td></tr>'; return; }
 
         gamesData.forEach(game => {
-            const defaultImg = 'https://placehold.co/80x80?text=No+Img';
-            const imgUrl = game.image_url ? game.image_url : defaultImg;
-
+            const imgUrl = game.image_url || 'https://placehold.co/80x80?text=No+Img';
             let row = `<tr>
-                <td><img src="${imgUrl}" class="game-pic" alt="${game.name}" onerror="this.src='${defaultImg}'"></td>
-                <td><strong style="font-size: 1.05em; color: #222;">${game.name}</strong></td>
+                <td><img src="${imgUrl}" class="game-pic"></td>
+                <td><strong style="color: #222;">${game.name}</strong></td>
                 <td><span class="status-badge">${game.holder}</span></td>`;
-            
             if (isAdmin) {
                 row += `<td class="admin-controls">
-                    <button class="btn-warning" onclick="changeStatus(${game.id}, '${game.holder}')">✏️ เปลี่ยน</button>
-                    <button class="btn-danger" onclick="deleteGame(${game.id})">🗑️ ลบ</button>
+                    <button class="btn-warning" onclick="changeStatus(${game.id}, '${game.holder}')">เปลี่ยน</button>
+                    <button class="btn-danger" onclick="deleteGame(${game.id})">ลบ</button>
                 </td>`;
             }
             row += `</tr>`;
             tbody.innerHTML += row;
         });
-
-        const adminHeaders = document.querySelectorAll('.admin-controls');
-        adminHeaders.forEach(el => el.style.display = isAdmin ? 'table-cell' : 'none');
+        document.querySelectorAll('.admin-controls').forEach(el => el.style.display = isAdmin ? 'table-cell' : 'none');
     }
 
     async function addGame() {
-        const name = document.getElementById('gameName').value.trim();
-        const holder = document.getElementById('gameHolder').value.trim();
-        const fileInput = document.getElementById('gameImgFile');
-        const file = fileInput.files[0];
-
-        if (!name || !holder) { alert('กรุณาใส่ "ชื่อเกม" และ "สถานะ" ให้ครบถ้วนครับ'); return; }
-
-        const btn = document.getElementById('saveBtn');
-        btn.innerText = "⏳ กำลังอัปโหลดและบันทึก...";
-        btn.disabled = true;
-        btn.style.opacity = "0.7";
-
-        let finalImageUrl = "";
-        if (file) {
-            const fileExt = file.name.split('.').pop();
-            const filePath = `${Date.now()}.${fileExt}`; 
-
-            const { error: uploadError } = await mySupabase.storage.from('images').upload(filePath, file);
-            if (uploadError) {
-                console.error("Upload Error:", uploadError);
-                alert('อัปโหลดรูปล้มเหลว! ตรวจสอบว่าเปิด Policy หรือยังครับ');
-                resetButton(btn); return;
-            }
-
-            const { data: publicUrlData } = mySupabase.storage.from('images').getPublicUrl(filePath);
-            finalImageUrl = publicUrlData.publicUrl;
+        const n = document.getElementById('gameName').value.trim();
+        const h = document.getElementById('gameHolder').value.trim();
+        const f = document.getElementById('gameImgFile').files[0];
+        if (!n || !h) { alert('ใส่ข้อมูลให้ครบ!'); return; }
+        
+        document.getElementById('saveBtn').innerText = "⏳ กำลังบันทึก...";
+        let img = "";
+        if (f) {
+            const p = `${Date.now()}.${f.name.split('.').pop()}`;
+            await mySupabase.storage.from('images').upload(p, f);
+            img = mySupabase.storage.from('images').getPublicUrl(p).data.publicUrl;
         }
-
-        const { error } = await mySupabase.from('boardgames').insert([{ name: name, image_url: finalImageUrl, holder: holder }]);
-        resetButton(btn);
-
-        if (error) {
-            console.error(error); alert('เกิดข้อผิดพลาดในการเพิ่มข้อมูล!');
-        } else {
-            document.getElementById('gameName').value = '';
-            fileInput.value = '';
-            document.getElementById('gameHolder').value = '';
-            fetchGames(); 
-        }
+        await mySupabase.from('boardgames').insert([{ name: n, image_url: img, holder: h }]);
+        document.getElementById('gameName').value = ''; document.getElementById('gameHolder').value = ''; document.getElementById('gameImgFile').value = '';
+        document.getElementById('saveBtn').innerText = "💾 บันทึกเกมใหม่";
+        fetchGames();
     }
 
-    function resetButton(btn) {
-        btn.innerText = "💾 บันทึกเกมใหม่";
-        btn.disabled = false;
-        btn.style.opacity = "1";
-    }
-
-    async function changeStatus(id, currentHolder) {
-        const newHolder = prompt("อัปเดตสถานะ/คนที่เก็บกล่อง:", currentHolder);
-        if (newHolder === null || newHolder.trim() === "" || newHolder === currentHolder) return;
-
-        const { error } = await mySupabase.from('boardgames').update({ holder: newHolder.trim() }).eq('id', id);
-        if (error) { console.error(error); alert('อัปเดตสถานะไม่สำเร็จ!'); } else { fetchGames(); }
+    async function changeStatus(id, cur) {
+        const n = prompt("อยู่ที่ใคร:", cur);
+        if (n && n !== cur) { await mySupabase.from('boardgames').update({ holder: n.trim() }).eq('id', id); fetchGames(); }
     }
 
     async function deleteGame(id) {
-        if (confirm("แน่ใจหรือไม่ว่าต้องการลบเกมนี้ออกจากระบบ?")) {
-            const { error } = await mySupabase.from('boardgames').delete().eq('id', id);
-            if (error) { console.error(error); alert('ลบข้อมูลไม่สำเร็จ!'); } else { fetchGames(); }
-        }
+        if (confirm("ลบเกมนี้?")) { await mySupabase.from('boardgames').delete().eq('id', id); fetchGames(); }
     }
 
     fetchGames();
