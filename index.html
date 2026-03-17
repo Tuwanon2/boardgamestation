@@ -26,6 +26,8 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
             backdrop-filter: blur(10px);
         }
+        
+        /* สไตล์ส่วนหัว (Header) */
         h2 { 
             display: flex; 
             justify-content: space-between; 
@@ -33,23 +35,66 @@
             border-bottom: 3px solid #f0f0f0;
             padding-bottom: 15px;
             margin-top: 0;
-            color: #4a4a4a;
         }
-        button { 
+        
+        /* 🌟 สไตล์โลโก้เว็บ */
+        .web-logo {
+            height: 60px; /* ขนาดความสูงโลโก้ */
+            width: auto;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* 🌟 สไตล์ปุ่มแอดมินแบบรูปภาพ */
+        #loginBtn {
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            padding: 0;
+            transition: transform 0.2s ease;
+        }
+        #loginBtn:hover {
+            transform: scale(1.05) translateY(-2px);
+        }
+        #loginBtn img {
+            height: 50px; /* ขนาดปุ่มแอดมิน */
+            width: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        
+        /* สไตล์ปุ่มล็อกเอาท์ (ตอนเป็นแอดมิน) */
+        #loginBtn.btn-danger-mode {
+            background-color: #ff4757;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
+        }
+        #loginBtn.btn-danger-mode:hover { background-color: #ff6b81; }
+
+        /* ปุ่มสีส้มและสีแดงในตาราง */
+        .btn-warning { background-color: #ffa502; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s ease;}
+        .btn-warning:hover { background-color: #ff7f50; transform: translateY(-2px);}
+        .btn-danger { background-color: #ff4757; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s ease;}
+        .btn-danger:hover { background-color: #ff6b81; transform: translateY(-2px);}
+        
+        /* ปุ่มบันทึกเกมใหม่ (สีม่วง) */
+        #saveBtn {
             cursor: pointer; 
-            padding: 10px 16px; 
+            padding: 12px 20px; 
             border: none; 
             border-radius: 8px; 
-            background-color: #8a2be2; /* ปุ่มสีม่วง */
+            background-color: #8a2be2; 
             color: white; 
             font-weight: bold;
             transition: all 0.2s ease;
+            font-size: 16px;
         }
-        button:hover { background-color: #721bbd; transform: translateY(-2px); }
-        .btn-danger { background-color: #ff4757; }
-        .btn-danger:hover { background-color: #ff6b81; }
-        .btn-warning { background-color: #ffa502; color: white; }
-        .btn-warning:hover { background-color: #ff7f50; }
+        #saveBtn:hover { background-color: #721bbd; transform: translateY(-2px); }
         
         /* สไตล์ตาราง */
         table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; border-radius: 10px; overflow: hidden; }
@@ -101,8 +146,11 @@
 
 <div class="container">
     <h2>
-        🎲 สถานะบอร์ดเกมของเรา
-        <button id="loginBtn" onclick="toggleAdmin()">⚙️ สำหรับ Admin</button>
+        <img src="https://sntbvvyafvcieopsdklc.supabase.co/storage/v1/object/public/images/f4ebcd81-7ef8-4cb3-80b2-1213ae26b578.jpg" class="web-logo" alt="Logo">
+        
+        <button id="loginBtn" onclick="toggleAdmin()">
+            <img src="https://t3.ftcdn.net/jpg/09/86/19/94/360_F_986199439_HWPZ4YtWmnR9h1FXSJXuqhXpLy7Kh0rb.jpg" alt="Admin Login">
+        </button>
     </h2>
 
     <div id="adminPanel">
@@ -131,7 +179,7 @@
 </div>
 
 <script>
-    // เชื่อมต่อ Supabase (ใช้ชื่อ mySupabase เพื่อไม่ให้ซ้ำกับระบบ)
+    // เชื่อมต่อ Supabase
     const mySupabaseUrl = 'https://sntbvvyafvcieopsdklc.supabase.co';
     const mySupabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNudGJ2dnlhZnZjaWVvcHNka2xjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MzY3NDgsImV4cCI6MjA4OTMxMjc0OH0.leGtwyXdGHY_3rGBTTNdNaDhFcq2Ic-buKoVOe-EFyM';
     const mySupabase = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
@@ -139,11 +187,17 @@
     let isAdmin = false;
     let gamesData = [];
 
+    // ตัวแปรเก็บรูปปุ่มแอดมิน
+    const adminImageBtnHtml = `<img src="https://t3.ftcdn.net/jpg/09/86/19/94/360_F_986199439_HWPZ4YtWmnR9h1FXSJXuqhXpLy7Kh0rb.jpg" alt="Admin Login">`;
+
     function toggleAdmin() {
+        const btn = document.getElementById('loginBtn');
+        
         if (isAdmin) {
+            // ตอนกดออกจากระบบ
             isAdmin = false;
-            document.getElementById('loginBtn').innerText = "⚙️ สำหรับ Admin";
-            document.getElementById('loginBtn').style.backgroundColor = "#8a2be2";
+            btn.innerHTML = adminImageBtnHtml; // คืนค่ารูปภาพกลับมา
+            btn.classList.remove('btn-danger-mode'); // เอาสไตล์ปุ่มแดงออก
             document.getElementById('adminPanel').style.display = "none";
             renderTable(); 
             return;
@@ -151,9 +205,10 @@
 
         const password = prompt("กรุณาใส่รหัสผ่าน Admin:");
         if (password === "1234") {
+            // ตอนเข้าสู่ระบบสำเร็จ
             isAdmin = true;
-            document.getElementById('loginBtn').innerText = "🔴 ออกจากระบบ Admin";
-            document.getElementById('loginBtn').style.backgroundColor = "#ff4757";
+            btn.innerHTML = "🔴 ออกจากระบบ"; // เปลี่ยนรูปภาพเป็นข้อความปุ่ม
+            btn.classList.add('btn-danger-mode'); // ใส่สไตล์ปุ่มแดง
             document.getElementById('adminPanel').style.display = "block";
             renderTable(); 
         } else if (password !== null) {
@@ -188,7 +243,6 @@
 
         gamesData.forEach(game => {
             const defaultImg = 'https://placehold.co/80x80?text=No+Img';
-            // ถ้ารูปพังหรือไม่มี ให้ใช้รูป default
             const imgUrl = game.image_url ? game.image_url : defaultImg;
 
             let row = `<tr>
@@ -210,7 +264,6 @@
         adminHeaders.forEach(el => el.style.display = isAdmin ? 'table-cell' : 'none');
     }
 
-    // ฟังก์ชันเพิ่มบอร์ดเกม + อัปโหลดรูปภาพ
     async function addGame() {
         const name = document.getElementById('gameName').value.trim();
         const holder = document.getElementById('gameHolder').value.trim();
@@ -229,13 +282,11 @@
 
         let finalImageUrl = "";
 
-        // ถ้ามีการเลือกไฟล์รูปภาพ
         if (file) {
             const fileExt = file.name.split('.').pop();
             const fileName = `${Date.now()}.${fileExt}`;
             const filePath = `${fileName}`; 
 
-            // 1. อัปโหลดรูปเข้า Storage ที่ชื่อ 'images'
             const { data: uploadData, error: uploadError } = await mySupabase.storage
                 .from('images') 
                 .upload(filePath, file);
@@ -247,7 +298,6 @@
                 return;
             }
 
-            // 2. ดึง URL ของรูป
             const { data: publicUrlData } = mySupabase.storage
                 .from('images')
                 .getPublicUrl(filePath);
@@ -255,7 +305,6 @@
             finalImageUrl = publicUrlData.publicUrl;
         }
 
-        // 3. บันทึกข้อมูล
         const { error } = await mySupabase
             .from('boardgames')
             .insert([{ name: name, image_url: finalImageUrl, holder: holder }]);
@@ -300,7 +349,6 @@
         }
     }
 
-    // โหลดข้อมูลตอนเปิดหน้าเว็บ
     fetchGames();
 </script>
 
