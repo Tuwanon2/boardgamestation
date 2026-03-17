@@ -40,55 +40,60 @@
 
         .btn-warning { background-color: #ffa502; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-danger { background-color: #ff4757; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        #saveBtn { cursor: pointer; padding: 12px 20px; border: none; border-radius: 8px; background-color: #8a2be2; color: white; font-weight: bold; width: 100%; }
+        #saveBtn { cursor: pointer; padding: 12px 20px; border: none; border-radius: 8px; background-color: #8a2be2; color: white; font-weight: bold; width: 100%; margin-top: 5px;}
         
-        /* สไตล์ตารางสำหรับจอคอม (จอใหญ่) */
+        /* สไตล์ตาราง */
         .table-responsive { width: 100%; overflow-x: hidden; margin-top: 25px; background: white; border-radius: 10px; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
         th { background-color: #f8f9fa; color: #555; text-transform: uppercase; font-size: 0.9em; }
         img.game-pic { width: 70px; height: 70px; object-fit: cover; border-radius: 10px; }
         
+        /* สไตล์ฟอร์ม Admin */
         #adminPanel { display: none; background: #f8f9fa; padding: 20px; border-radius: 12px; margin: 25px 0; border: 1px solid #eaeaea; }
         .admin-inputs { display: flex; gap: 10px; margin-bottom: 15px; }
-        input[type="text"], input[type="file"] { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        input[type="text"] { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        
+        /* 🌟 ปุ่มอัปโหลดรูปที่ตกแต่งใหม่ */
+        input[type="file"] { display: none; /* ซ่อนปุ่มเดิมที่ดูไม่สวย */ }
+        .custom-file-upload {
+            flex: 1;
+            border: 2px dashed #c471ed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            color: #8a2be2;
+            font-size: 14px;
+            font-weight: bold;
+            background: white;
+            transition: all 0.2s;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .custom-file-upload:hover { background: #fdf5ff; border-color: #8a2be2; }
+
         .admin-controls { display: none; }
         .status-badge { background: #e0f7fa; padding: 8px 12px; border-radius: 20px; font-weight: bold; color: #006064; display: inline-block; font-size: 0.9em; }
 
-        /* 📱 RESPONSIVE DESIGN: สำหรับมือถือ (บีบทุกอย่างให้อยู่ในจอเดียว) */
+        /* 📱 RESPONSIVE DESIGN: สำหรับมือถือ */
         @media (max-width: 768px) {
             body { padding: 10px 5px; }
             .container { padding: 15px 10px; }
             h2 { flex-direction: column; gap: 10px; text-align: center; }
             .header-left { flex-direction: column; }
-            .admin-inputs { flex-direction: column; }
+            .admin-inputs { flex-direction: column; } /* จัดปุ่มให้เรียงลงมาแนวตั้งบนมือถือ */
             
-            /* ลดขนาดช่องว่างและตัวหนังสือในตาราง */
-            th, td { 
-                padding: 8px 4px; /* บีบช่องว่างให้แคบลง */
-                font-size: 12px;  /* ลดขนาดตัวอักษร */
-                word-break: break-word; /* ให้ตัดคำขึ้นบรรทัดใหม่ได้ถ้าที่จอดไม่พอ */
-            }
-            th { font-size: 11px; } /* หัวตารางตัวเล็กสุด */
-            
-            /* ย่อรูปภาพให้เล็กพอดีจอ */
+            th, td { padding: 8px 4px; font-size: 12px; word-break: break-word; }
+            th { font-size: 11px; } 
             img.game-pic { width: 45px; height: 45px; border-radius: 6px; }
             
-            /* ย่อป้ายชื่อคนถือและอนุญาตให้ตัดคำได้ */
-            .status-badge { 
-                padding: 4px 6px; 
-                font-size: 11px; 
-                white-space: normal; 
-            }
-            
-            /* ย่อปุ่มและเรียงบนล่าง */
-            .btn-warning, .btn-danger { 
-                padding: 4px; 
-                font-size: 11px; 
-                display: block; 
-                width: 100%; 
-                margin-bottom: 4px; 
-            }
+            .status-badge { padding: 4px 6px; font-size: 11px; white-space: normal; }
+            .btn-warning, .btn-danger { padding: 4px; font-size: 11px; display: block; width: 100%; margin-bottom: 4px; }
         }
     </style>
 </head>
@@ -108,9 +113,14 @@
     <div id="adminPanel">
         <h3 style="margin-top: 0; color: #8a2be2;">➕ เพิ่มบอร์ดเกมใหม่</h3>
         <div class="admin-inputs">
-            <input type="text" id="gameName" placeholder="ชื่อบอร์ดเกม">
-            <input type="file" id="gameImgFile" accept="image/*">
-            <input type="text" id="gameHolder" placeholder="อยู่กับ...">
+            <input type="text" id="gameName" placeholder="ชื่อบอร์ดเกม (ต้องระบุ)">
+            
+            <label class="custom-file-upload">
+                <span id="fileNameDisplay">📸 อัปโหลดรูปหน้ากล่องเกม</span>
+                <input type="file" id="gameImgFile" accept="image/*" onchange="updateFileName()">
+            </label>
+            
+            <input type="text" id="gameHolder" placeholder="อยู่กับใคร... (ต้องระบุ)">
         </div>
         <button id="saveBtn" onclick="addGame()">💾 บันทึกเกมใหม่</button>
     </div>
@@ -160,6 +170,27 @@
         } else if (password !== null) { alert("รหัสผิด!"); }
     }
 
+    // ฟังก์ชันเปลี่ยนชื่อปุ่มอัปโหลดเวลากดเลือกรูปเสร็จ
+    function updateFileName() {
+        const input = document.getElementById('gameImgFile');
+        const display = document.getElementById('fileNameDisplay');
+        if (input.files && input.files.length > 0) {
+            display.innerText = "✅ เลือกรูปแล้ว: " + input.files[0].name;
+            display.parentElement.style.borderColor = "#2ed573";
+            display.parentElement.style.color = "#2ed573";
+        } else {
+            resetFileButton();
+        }
+    }
+
+    function resetFileButton() {
+        const display = document.getElementById('fileNameDisplay');
+        display.innerText = "📸 อัปโหลดรูปหน้ากล่องเกม";
+        display.parentElement.style.borderColor = "#c471ed";
+        display.parentElement.style.color = "#8a2be2";
+        document.getElementById('gameImgFile').value = '';
+    }
+
     async function fetchGames() {
         const { data, error } = await mySupabase.from('boardgames').select('*').order('id', { ascending: false });
         if (!error) { gamesData = data; renderTable(); }
@@ -192,7 +223,8 @@
         const n = document.getElementById('gameName').value.trim();
         const h = document.getElementById('gameHolder').value.trim();
         const f = document.getElementById('gameImgFile').files[0];
-        if (!n || !h) { alert('ใส่ข้อมูลให้ครบ!'); return; }
+        
+        if (!n || !h) { alert('กรุณาระบุชื่อเกม และคนที่ถือเกมให้ครบถ้วนครับ!'); return; }
         
         document.getElementById('saveBtn').innerText = "⏳ กำลังบันทึก...";
         let img = "";
@@ -201,8 +233,14 @@
             await mySupabase.storage.from('images').upload(p, f);
             img = mySupabase.storage.from('images').getPublicUrl(p).data.publicUrl;
         }
+        
         await mySupabase.from('boardgames').insert([{ name: n, image_url: img, holder: h }]);
-        document.getElementById('gameName').value = ''; document.getElementById('gameHolder').value = ''; document.getElementById('gameImgFile').value = '';
+        
+        // เคลียร์ค่าหลังจากบันทึกเสร็จ
+        document.getElementById('gameName').value = ''; 
+        document.getElementById('gameHolder').value = ''; 
+        resetFileButton(); // รีเซ็ตปุ่มรูปภาพให้กลับมาเป็นเหมือนเดิม
+        
         document.getElementById('saveBtn').innerText = "💾 บันทึกเกมใหม่";
         fetchGames();
     }
