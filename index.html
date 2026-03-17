@@ -6,15 +6,11 @@
     <title>สถานะบอร์ดเกมของเรา</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* รีเซ็ตค่าเริ่มต้นให้คุมขนาดกล่องได้ง่ายขึ้น */
-        * {
-            box-sizing: border-box;
-        }
+        /* รีเซ็ตค่าเริ่มต้น */
+        * { box-sizing: border-box; }
 
-        /* CSS ปรับโฉมใหม่ให้สวยงาม โมเดิร์น */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            /* พื้นหลังไล่สี เหลือง-ม่วง แบบสวยๆ */
             background: linear-gradient(135deg, #ffe066 0%, #c471ed 100%);
             min-height: 100vh;
             margin: 0;
@@ -24,7 +20,6 @@
         .container { 
             max-width: 850px; 
             margin: auto; 
-            /* กล่องสีขาวแบบโปร่งแสงนิดๆ (Glassmorphism) */
             background: rgba(255, 255, 255, 0.95); 
             padding: 30px; 
             border-radius: 20px; 
@@ -41,23 +36,20 @@
             padding-bottom: 15px;
             margin-top: 0;
         }
-        
         .header-left {
             display: flex;
             align-items: center;
             gap: 15px;
         }
 
-        /* 🌟 สไตล์โลโก้เว็บ */
         .web-logo {
-            height: 60px; /* ขนาดความสูงโลโก้ */
+            height: 60px;
             width: auto;
             border-radius: 12px;
             object-fit: cover;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
-        /* 🌟 สไตล์ปุ่มแอดมินแบบรูปภาพ */
         #loginBtn {
             cursor: pointer;
             border: none;
@@ -65,17 +57,14 @@
             padding: 0;
             transition: transform 0.2s ease;
         }
-        #loginBtn:hover {
-            transform: scale(1.05) translateY(-2px);
-        }
+        #loginBtn:hover { transform: scale(1.05) translateY(-2px); }
         #loginBtn img {
-            height: 50px; /* ขนาดปุ่มแอดมิน */
+            height: 50px;
             width: auto;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
         
-        /* สไตล์ปุ่มล็อกเอาท์ (ตอนเป็นแอดมิน) */
         #loginBtn.btn-danger-mode {
             background-color: #ff4757;
             color: white;
@@ -87,13 +76,12 @@
         }
         #loginBtn.btn-danger-mode:hover { background-color: #ff6b81; }
 
-        /* ปุ่มสีส้มและสีแดงในตาราง */
+        /* ปุ่มต่างๆ */
         .btn-warning { background-color: #ffa502; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s ease;}
         .btn-warning:hover { background-color: #ff7f50; transform: translateY(-2px);}
         .btn-danger { background-color: #ff4757; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s ease;}
         .btn-danger:hover { background-color: #ff6b81; transform: translateY(-2px);}
         
-        /* ปุ่มบันทึกเกมใหม่ (สีม่วง) */
         #saveBtn {
             cursor: pointer; 
             padding: 12px 20px; 
@@ -107,10 +95,25 @@
         }
         #saveBtn:hover { background-color: #721bbd; transform: translateY(-2px); }
         
-        /* สไตล์ตารางเริ่มต้น (สำหรับจอคอม) */
-        table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; border-radius: 10px; overflow: hidden; }
+        /* 🌟 คลุมตารางเพื่อให้เลื่อนซ้ายขวาได้บนมือถือ */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto; /* อนุญาตให้เลื่อนซ้ายขวา */
+            -webkit-overflow-scrolling: touch; /* เลื่อนลื่นๆ บน iOS */
+            margin-top: 25px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* สไตล์ตาราง */
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            min-width: 550px; /* บังคับความกว้างขั้นต่ำ ไม่ให้ตารางบีบจนข้อความเละ */
+        }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
-        th { background-color: #f8f9fa; color: #555; text-transform: uppercase; font-size: 0.9em; }
+        th { background-color: #f8f9fa; color: #555; text-transform: uppercase; font-size: 0.9em; white-space: nowrap; }
         tr:hover { background-color: #fcfcfc; }
         img.game-pic { width: 80px; height: 80px; object-fit: cover; border-radius: 12px; border: 2px solid #f0f0f0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         
@@ -150,79 +153,29 @@
             color: #006064;
             display: inline-block;
             font-size: 0.9em;
+            white-space: nowrap;
         }
 
-        /* 📱 ================================================= */
-        /* 🌟 RESPONSIVE DESIGN: สำหรับหน้าจอมือถือ (กว้างไม่เกิน 768px) */
-        /* ==================================================== */
+        /* 📱 RESPONSIVE DESIGN สำหรับมือถือ (กว้างไม่เกิน 768px) */
         @media (max-width: 768px) {
-            body { 
-                padding: 20px 10px; /* ลดขอบซ้ายขวาลงให้มีพื้นที่แสดงผลมากขึ้น */
-            }
-            .container { 
-                padding: 20px; 
-            }
+            body { padding: 15px 10px; }
+            .container { padding: 20px 15px; }
             
-            /* ปรับส่วนหัว (Header) ให้อยู่ตรงกลางและเรียงลงมา */
-            h2 { 
-                flex-direction: column; 
-                gap: 15px; 
-                text-align: center; 
-            }
-            .header-left { 
-                flex-direction: column; 
-                justify-content: center; 
-            }
+            /* จัด Header ให้อยู่ตรงกลาง */
+            h2 { flex-direction: column; gap: 15px; text-align: center; }
+            .header-left { flex-direction: column; justify-content: center; }
             
-            /* ปรับกล่องกรอกข้อมูล Admin ให้เรียงแถวลงมา (แนวตั้ง) */
-            .admin-inputs { 
-                flex-direction: column; 
-                align-items: stretch;
-            }
-            input[type="text"], input[type="file"], #saveBtn { 
-                width: 100%; 
-            }
+            /* กล่องกรอกข้อมูล Admin ให้เรียงแนวตั้ง */
+            .admin-inputs { flex-direction: column; align-items: stretch; }
+            input[type="text"], input[type="file"], #saveBtn { width: 100%; }
 
-            /* 🌟 แปลงตารางเป็น "รูปแบบการ์ด (Card Layout)" */
-            table, thead, tbody, th, td, tr { 
-                display: block; 
-            }
-            thead tr { 
-                display: none; /* ซ่อนหัวตาราง (รูปภาพ, ชื่อเกม, อยู่ที่ใคร) ออกไป */
-            }
-            tr { 
-                margin-bottom: 20px; 
-                border: 1px solid #eaeaea; 
-                border-radius: 15px; 
-                padding: 20px 15px; 
-                box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-                background: white;
-            }
-            td { 
-                padding: 10px 0; 
-                text-align: center; /* จัดตัวหนังสือให้อยู่ตรงกลาง */
-                border: none; 
-            }
-            /* จัดการรูปภาพในมือถือให้ใหญ่ขึ้นนิดนึงและอยู่ตรงกลาง */
-            img.game-pic { 
-                width: 120px; 
-                height: 120px; 
-                margin: 0 auto; 
-                display: block; 
-            }
-            /* บังคับให้ปุ่มเมนู Admin แสดงผลเป็นบล็อก (แก้ไขปัญหาที่ JS สั่งให้เป็น table-cell) */
-            .admin-controls[style*="display: table-cell"] {
-                display: block !important; 
-            }
-            /* ปรับปุ่มลบ/แก้ไขให้กว้างเต็มจอเพื่อให้กดง่ายบนมือถือ */
-            .admin-controls button {
-                width: 100%;
-                margin-bottom: 10px;
-                padding: 12px;
-            }
-            .admin-controls button:last-child {
-                margin-bottom: 0;
-            }
+            /* ปรับขนาดในตารางให้เล็กลงนิดหน่อยเพื่อประหยัดพื้นที่ */
+            th, td { padding: 10px; font-size: 14px; }
+            img.game-pic { width: 60px; height: 60px; }
+            .btn-warning, .btn-danger { padding: 6px 10px; font-size: 12px; margin-bottom: 4px; display: block; width: 100%; text-align: center;}
+            
+            /* กำหนดความกว้างขั้นต่ำของตารางเมื่ออยู่ในโหมดแอดมิน (เพราะมีปุ่มเพิ่มมา) */
+            table { min-width: 600px; } 
         }
     </style>
 </head>
@@ -250,41 +203,38 @@
         <button id="saveBtn" onclick="addGame()">💾 บันทึกเกมใหม่</button>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th width="110">รูปภาพ</th>
-                <th>ชื่อเกม</th>
-                <th>อยู่ที่ใคร</th>
-                <th class="admin-controls" width="180">จัดการ (Admin)</th>
-            </tr>
-        </thead>
-        <tbody id="gameTableBody">
-            <tr><td colspan="4" style="text-align: center; padding: 30px; color: #888;">กำลังโหลดข้อมูล... ⏳</td></tr>
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th width="90">รูปภาพ</th>
+                    <th>ชื่อเกม</th>
+                    <th>อยู่ที่ใคร</th>
+                    <th class="admin-controls" width="140">จัดการ</th>
+                </tr>
+            </thead>
+            <tbody id="gameTableBody">
+                <tr><td colspan="4" style="text-align: center; padding: 30px; color: #888;">กำลังโหลดข้อมูล... ⏳</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    // เชื่อมต่อ Supabase
     const mySupabaseUrl = 'https://sntbvvyafvcieopsdklc.supabase.co';
     const mySupabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNudGJ2dnlhZnZjaWVvcHNka2xjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MzY3NDgsImV4cCI6MjA4OTMxMjc0OH0.leGtwyXdGHY_3rGBTTNdNaDhFcq2Ic-buKoVOe-EFyM';
     const mySupabase = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
     let isAdmin = false;
     let gamesData = [];
-
-    // ตัวแปรเก็บรูปปุ่มแอดมิน
     const adminImageBtnHtml = `<img src="https://t3.ftcdn.net/jpg/09/86/19/94/360_F_986199439_HWPZ4YtWmnR9h1FXSJXuqhXpLy7Kh0rb.jpg" alt="Admin Login">`;
 
     function toggleAdmin() {
         const btn = document.getElementById('loginBtn');
-        
         if (isAdmin) {
-            // ตอนกดออกจากระบบ
             isAdmin = false;
-            btn.innerHTML = adminImageBtnHtml; // คืนค่ารูปภาพกลับมา
-            btn.classList.remove('btn-danger-mode'); // เอาสไตล์ปุ่มแดงออก
+            btn.innerHTML = adminImageBtnHtml;
+            btn.classList.remove('btn-danger-mode');
             document.getElementById('adminPanel').style.display = "none";
             renderTable(); 
             return;
@@ -292,10 +242,9 @@
 
         const password = prompt("กรุณาใส่รหัสผ่าน Admin:");
         if (password === "113333555555") {
-            // ตอนเข้าสู่ระบบสำเร็จ
             isAdmin = true;
-            btn.innerHTML = "🔴 เสร็จสิ้น"; // เปลี่ยนรูปภาพเป็นข้อความปุ่ม
-            btn.classList.add('btn-danger-mode'); // ใส่สไตล์ปุ่มแดง
+            btn.innerHTML = "🔴 เสร็จสิ้น";
+            btn.classList.add('btn-danger-mode');
             document.getElementById('adminPanel').style.display = "block";
             renderTable(); 
         } else if (password !== null) {
@@ -304,17 +253,12 @@
     }
 
     async function fetchGames() {
-        const { data, error } = await mySupabase
-            .from('boardgames')
-            .select('*')
-            .order('id', { ascending: false });
-        
+        const { data, error } = await mySupabase.from('boardgames').select('*').order('id', { ascending: false });
         if (error) {
             console.error("Error fetching data:", error);
             document.getElementById('gameTableBody').innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
             return;
         }
-
         gamesData = data;
         renderTable();
     }
@@ -334,12 +278,12 @@
 
             let row = `<tr>
                 <td><img src="${imgUrl}" class="game-pic" alt="${game.name}" onerror="this.src='${defaultImg}'"></td>
-                <td><strong style="font-size: 1.1em; color: #222;">${game.name}</strong></td>
+                <td><strong style="font-size: 1.05em; color: #222;">${game.name}</strong></td>
                 <td><span class="status-badge">${game.holder}</span></td>`;
             
             if (isAdmin) {
                 row += `<td class="admin-controls">
-                    <button class="btn-warning" onclick="changeStatus(${game.id}, '${game.holder}')">✏️ เปลี่ยนสถานะ</button>
+                    <button class="btn-warning" onclick="changeStatus(${game.id}, '${game.holder}')">✏️ เปลี่ยน</button>
                     <button class="btn-danger" onclick="deleteGame(${game.id})">🗑️ ลบ</button>
                 </td>`;
             }
@@ -347,7 +291,6 @@
             tbody.innerHTML += row;
         });
 
-        // คืนค่า display หลังจากวาด Table ใหม่
         const adminHeaders = document.querySelectorAll('.admin-controls');
         adminHeaders.forEach(el => el.style.display = isAdmin ? 'table-cell' : 'none');
     }
@@ -358,10 +301,7 @@
         const fileInput = document.getElementById('gameImgFile');
         const file = fileInput.files[0];
 
-        if (!name || !holder) {
-            alert('กรุณาใส่ "ชื่อเกม" และ "สถานะ" ให้ครบถ้วนครับ');
-            return;
-        }
+        if (!name || !holder) { alert('กรุณาใส่ "ชื่อเกม" และ "สถานะ" ให้ครบถ้วนครับ'); return; }
 
         const btn = document.getElementById('saveBtn');
         btn.innerText = "⏳ กำลังอัปโหลดและบันทึก...";
@@ -369,39 +309,26 @@
         btn.style.opacity = "0.7";
 
         let finalImageUrl = "";
-
         if (file) {
             const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}.${fileExt}`;
-            const filePath = `${fileName}`; 
+            const filePath = `${Date.now()}.${fileExt}`; 
 
-            const { data: uploadData, error: uploadError } = await mySupabase.storage
-                .from('images') 
-                .upload(filePath, file);
-
+            const { error: uploadError } = await mySupabase.storage.from('images').upload(filePath, file);
             if (uploadError) {
                 console.error("Upload Error:", uploadError);
-                alert('อัปโหลดรูปล้มเหลว! ตรวจสอบว่าเปิด Policy ให้ Insert/Update ในกล่องภาพหรือยังครับ');
-                resetButton(btn);
-                return;
+                alert('อัปโหลดรูปล้มเหลว! ตรวจสอบว่าเปิด Policy หรือยังครับ');
+                resetButton(btn); return;
             }
 
-            const { data: publicUrlData } = mySupabase.storage
-                .from('images')
-                .getPublicUrl(filePath);
-            
+            const { data: publicUrlData } = mySupabase.storage.from('images').getPublicUrl(filePath);
             finalImageUrl = publicUrlData.publicUrl;
         }
 
-        const { error } = await mySupabase
-            .from('boardgames')
-            .insert([{ name: name, image_url: finalImageUrl, holder: holder }]);
-        
+        const { error } = await mySupabase.from('boardgames').insert([{ name: name, image_url: finalImageUrl, holder: holder }]);
         resetButton(btn);
 
         if (error) {
-            console.error(error);
-            alert('เกิดข้อผิดพลาดในการเพิ่มข้อมูลลงฐานข้อมูล!');
+            console.error(error); alert('เกิดข้อผิดพลาดในการเพิ่มข้อมูล!');
         } else {
             document.getElementById('gameName').value = '';
             fileInput.value = '';
@@ -420,20 +347,14 @@
         const newHolder = prompt("อัปเดตสถานะ/คนที่เก็บกล่อง:", currentHolder);
         if (newHolder === null || newHolder.trim() === "" || newHolder === currentHolder) return;
 
-        const { error } = await mySupabase
-            .from('boardgames')
-            .update({ holder: newHolder.trim() })
-            .eq('id', id);
-
-        if (error) { console.error(error); alert('อัปเดตสถานะไม่สำเร็จ!'); } 
-        else { fetchGames(); }
+        const { error } = await mySupabase.from('boardgames').update({ holder: newHolder.trim() }).eq('id', id);
+        if (error) { console.error(error); alert('อัปเดตสถานะไม่สำเร็จ!'); } else { fetchGames(); }
     }
 
     async function deleteGame(id) {
         if (confirm("แน่ใจหรือไม่ว่าต้องการลบเกมนี้ออกจากระบบ?")) {
             const { error } = await mySupabase.from('boardgames').delete().eq('id', id);
-            if (error) { console.error(error); alert('ลบข้อมูลไม่สำเร็จ!'); } 
-            else { fetchGames(); }
+            if (error) { console.error(error); alert('ลบข้อมูลไม่สำเร็จ!'); } else { fetchGames(); }
         }
     }
 
