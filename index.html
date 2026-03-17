@@ -146,7 +146,11 @@
 
 <div class="container">
     <h2>
-        <img src="https://sntbvvyafvcieopsdklc.supabase.co/storage/v1/object/public/images/f4ebcd81-7ef8-4cb3-80b2-1213ae26b578.jpg" class="web-logo" alt="Logo">
+        <div class="header-left">
+            <img src="https://sntbvvyafvcieopsdklc.supabase.co/storage/v1/object/public/images/f4ebcd81-7ef8-4cb3-80b2-1213ae26b578.jpg" class="web-logo" alt="Logo">
+            <span class="web-title">Boardgame Station</span>
+        </div>
+        
         <button id="loginBtn" onclick="toggleAdmin()">
             <img src="https://t3.ftcdn.net/jpg/09/86/19/94/360_F_986199439_HWPZ4YtWmnR9h1FXSJXuqhXpLy7Kh0rb.jpg" alt="Admin Login">
         </button>
@@ -155,9 +159,9 @@
     <div id="adminPanel">
         <h3 style="margin-top: 0; color: #8a2be2;">➕ เพิ่มบอร์ดเกมใหม่</h3>
         <div class="admin-inputs">
-            <input type="text" id="gameName" placeholder="ชื่อบอร์ดเกม (เช่น Catan)">
+            <input type="text" id="gameName" placeholder="ชื่อบอร์ดเกม">
             <input type="file" id="gameImgFile" accept="image/*">
-            <input type="text" id="gameHolder" placeholder="สถานะ (เช่น อยู่ที่ตู้, พี่ A ยืม)">
+            <input type="text" id="gameHolder" placeholder="สถานะ (เช่น อยู่ที่ตู้)">
         </div>
         <button id="saveBtn" onclick="addGame()">💾 บันทึกเกมใหม่</button>
     </div>
